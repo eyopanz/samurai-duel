@@ -1,0 +1,479 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  overflow: hidden;
+  background: #1a0f0a;
+}
+
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+}
+
+#bg-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  display: block;
+}
+
+#ui-layer {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#ui-layer button, #ui-layer select, #ui-layer input {
+  pointer-events: auto;
+}
+
+#touch-controls, #touch-controls * {
+  pointer-events: auto;
+}
+
+/* HUD */
+#header-bar {
+  position: absolute;
+  top: 16px; left: 16px; right: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.hud-box {
+  background: rgba(30, 15, 10, 0.75);
+  border: 1px solid #b91c1c;
+  border-radius: 8px;
+  padding: 6px 14px;
+  color: #fca5a5;
+  text-align: center;
+  min-width: 60px;
+  backdrop-filter: blur(4px);
+}
+.hud-label { display: block; font-size: 10px; letter-spacing: 1px; color: #f87171; }
+.hud-value { display: block; font-size: 18px; font-weight: bold; color: #fef3c7; }
+
+.btn-pause-hud, .btn-icon {
+  margin-left: auto;
+  background: rgba(30,15,10,0.75);
+  border: 1px solid #b91c1c;
+  color: #fef3c7;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.btn-icon { margin-left: 6px; padding: 8px 12px; font-size: 16px; }
+.btn-pause-hud:hover, .btn-icon:hover { background: rgba(185,28,28,0.5); }
+
+/* Health bars */
+#health-bar-container {
+  position: absolute;
+  top: 70px; left: 16px; right: 16px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.player-hp-box { flex: 1; max-width: 320px; }
+.hp-label { color: #fef3c7; font-size: 12px; font-weight: bold; text-shadow: 0 1px 2px black; }
+.hp-bar-outer {
+  height: 16px;
+  background: rgba(0,0,0,0.5);
+  border: 1px solid #78350f;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.hp-bar-inner {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+  transition: width 0.2s ease;
+}
+.hp-bar-inner.p2 { background: linear-gradient(90deg, #ef4444, #b91c1c); }
+
+.controls-hint {
+  position: absolute;
+  bottom: 12px; left: 50%;
+  transform: translateX(-50%);
+  color: #fef3c7;
+  background: rgba(0,0,0,0.5);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* Toast */
+.toast {
+  position: absolute;
+  top: 100px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20,10,5,0.92);
+  border: 1px solid #f59e0b;
+  color: #fef3c7;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 20;
+}
+.toast.hidden { opacity: 0; transform: translate(-50%, -10px); pointer-events: none; }
+
+/* Overlay screens */
+.overlay-screen {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 5, 5, 0.75);
+  z-index: 30;
+  transition: opacity 0.25s ease;
+}
+.overlay-screen.hidden { opacity: 0; pointer-events: none; }
+
+.menu-card {
+  background: linear-gradient(160deg, #2a1710, #1a0f0a);
+  border: 1px solid #b91c1c;
+  border-radius: 16px;
+  padding: 36px 40px;
+  text-align: center;
+  min-width: 320px;
+  box-shadow: 0 0 40px rgba(185,28,28,0.3);
+}
+.modal-card { min-width: 280px; }
+
+.game-title {
+  font-size: 30px;
+  color: #fef3c7;
+  text-shadow: 0 0 12px rgba(220,38,38,0.6);
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.subtitle { color: #fca5a5; font-size: 13px; margin-bottom: 24px; }
+
+.options-grid { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; text-align: left; }
+.option-group label {
+  display: block; font-size: 11px; color: #f87171; margin-bottom: 6px; letter-spacing: 1px;
+}
+#game-mode {
+  width: 100%; padding: 10px; background: #150b07; border: 1px solid #78350f;
+  border-radius: 8px; color: #fef3c7; outline: none; font-size: 14px;
+}
+
+.button-group { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+.btn-primary, .btn-secondary, .btn-success {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  letter-spacing: 1px;
+}
+.btn-primary { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; }
+.btn-primary:hover { filter: brightness(1.15); }
+.btn-secondary { background: #3f2a1d; color: #fef3c7; }
+.btn-secondary:hover { background: #55392a; }
+.btn-success { background: linear-gradient(135deg, #22c55e, #15803d); color: white; }
+.btn-success:hover { filter: brightness(1.15); }
+
+.stats-summary { color: #fef3c7; margin-bottom: 20px; font-size: 14px; line-height: 1.8; }
+.stats-summary span { color: #facc15; font-weight: bold; }
+
+.hidden { display: none !important; }
+
+/* ================= KONTROL SENTUH (MOBILE) ================= */
+#touch-controls {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 22px 26px;
+  z-index: 15;
+  touch-action: none;
+}
+body.touch-device #touch-controls.hidden { display: flex; }
+
+#joystick-zone {
+  width: 140px; height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  touch-action: none;
+}
+#joystick-base {
+  position: relative;
+  width: 118px; height: 118px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, rgba(60, 30, 15, 0.65), rgba(15, 8, 5, 0.7) 70%);
+  border: 2px solid rgba(245, 158, 11, 0.55);
+  box-shadow:
+    inset 0 0 18px rgba(0,0,0,0.55),
+    0 0 0 5px rgba(0,0,0,0.18),
+    0 4px 14px rgba(0,0,0,0.45);
+  backdrop-filter: blur(3px);
+  touch-action: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+#joystick-base::before {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 70px; height: 70px;
+  margin: -35px 0 0 -35px;
+  border-radius: 50%;
+  border: 1px dashed rgba(250, 204, 21, 0.25);
+  pointer-events: none;
+}
+#joystick-base.active {
+  border-color: #f59e0b;
+  box-shadow:
+    inset 0 0 22px rgba(0,0,0,0.5),
+    0 0 0 5px rgba(245,158,11,0.15),
+    0 0 20px rgba(245,158,11,0.45);
+}
+#joystick-stick {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 50px; height: 50px;
+  margin: -25px 0 0 -25px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #fde68a, #f59e0b 55%, #b45309);
+  border: 1.5px solid #fef3c7;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.55), 0 0 12px rgba(245,158,11,0.35);
+  transition: transform 0.03s ease-out;
+  will-change: transform;
+  pointer-events: none;
+}
+
+#action-buttons {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+.touch-btn {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(245, 158, 11, 0.65);
+  background: radial-gradient(circle at 35% 30%, rgba(70, 35, 15, 0.85), rgba(25, 12, 8, 0.85));
+  color: #fef3c7;
+  font-size: 25px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3);
+  backdrop-filter: blur(3px);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.06s ease-out, box-shadow 0.12s ease, background 0.12s ease;
+}
+.touch-btn.pressed,
+.touch-btn:active {
+  background: radial-gradient(circle at 35% 30%, #ef4444, #7f1d1d);
+  border-color: #fca5a5;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 22px rgba(239,68,68,0.65);
+  transform: scale(0.9);
+}
+.touch-btn-main {
+  width: 82px; height: 82px;
+  font-size: 32px;
+  border-color: rgba(239, 68, 68, 0.75);
+  background: radial-gradient(circle at 35% 30%, rgba(140, 30, 20, 0.9), rgba(50, 10, 8, 0.9));
+  box-shadow: 0 4px 16px rgba(0,0,0,0.55), 0 0 16px rgba(239,68,68,0.25), inset 0 0 10px rgba(0,0,0,0.35);
+}
+
+/* Sembunyikan hint keyboard & tampilkan kontrol sentuh hanya di perangkat sentuh */
+body.touch-device .controls-hint { display: none; }
+body:not(.touch-device) #touch-controls { display: none !important; }
+
+/* ================= RESPONSIVE: LAYAR KECIL / HP ================= */
+@media (max-width: 640px) {
+  .menu-card {
+    min-width: 0;
+    width: 92vw;
+    padding: 24px 20px;
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+  .game-title { font-size: 22px; }
+  .subtitle { font-size: 12px; margin-bottom: 16px; }
+  #header-bar { top: 8px; left: 8px; right: 8px; gap: 6px; flex-wrap: wrap; }
+  .hud-box { padding: 4px 8px; min-width: 44px; }
+  .hud-label { font-size: 8px; }
+  .hud-value { font-size: 14px; }
+  .btn-pause-hud, .btn-icon { padding: 6px 10px; font-size: 13px; }
+  #health-bar-container { top: 56px; left: 8px; right: 8px; gap: 10px; }
+  .hp-label { font-size: 10px; }
+  .controls-hint { font-size: 10px; padding: 6px 10px; bottom: 150px; }
+  .btn-primary, .btn-secondary, .btn-success { padding: 10px 18px; font-size: 13px; }
+  #joystick-zone { width: 110px; height: 110px; }
+  #joystick-base { width: 92px; height: 92px; }
+  #touch-controls { padding: 0 12px 16px; }
+}
+
+@media (max-height: 480px) and (orientation: landscape) {
+  .menu-card { padding: 16px 20px; max-height: 92vh; overflow-y: auto; }
+  .game-title { font-size: 18px; margin-bottom: 2px; }
+  .subtitle { margin-bottom: 10px; }
+  .options-grid { gap: 8px; margin-bottom: 12px; }
+}
+
+/* ================= PAKSA LANDSCAPE DI HP (CSS ROTATE TRICK) =================
+   Bekerja di semua browser mobile (termasuk iOS Safari yang tidak mendukung
+   Screen Orientation Lock API). Saat HP dipegang portrait, seluruh
+   #game-container diputar 90° agar tampil landscape penuh layar. */
+body.touch-device.force-landscape {
+  overflow: hidden;
+}
+body.touch-device.force-landscape #game-container {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 100vh;
+  height: 100vw;
+  transform-origin: left top;
+  transform: rotate(90deg);
+}
+
+/* Ult meter */
+.ult-bar-outer {
+  height: 6px;
+  background: rgba(0,0,0,0.45);
+  border: 1px solid #78350f;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+.ult-bar-inner {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #fbbf24, #f59e0b, #facc15);
+  transition: width 0.15s ease;
+  box-shadow: 0 0 6px rgba(250, 204, 21, 0.5);
+}
+.ult-bar-inner.p2 {
+  background: linear-gradient(90deg, #f97316, #ea580c, #fb923c);
+}
+
+.touch-btn-ult {
+  width: 58px; height: 58px;
+  font-size: 22px;
+  border-color: rgba(250, 204, 21, 0.75);
+  background: radial-gradient(circle at 35% 30%, rgba(120, 80, 10, 0.9), rgba(40, 25, 5, 0.9));
+  box-shadow: 0 4px 14px rgba(0,0,0,0.5), 0 0 12px rgba(250,204,21,0.25), inset 0 0 8px rgba(0,0,0,0.3);
+}
+.touch-btn-ult.pressed,
+.touch-btn-ult:active {
+  background: radial-gradient(circle at 35% 30%, #facc15, #b45309);
+  border-color: #fef3c7;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 22px rgba(250,204,21,0.7);
+  transform: scale(0.9);
+}
+
+#game-rounds {
+  width: 100%; padding: 10px; background: #150b07; border: 1px solid #78350f;
+  border-radius: 8px; color: #fef3c7; outline: none; font-size: 14px;
+}
+
+#enemy-type, #game-rounds, #game-mode, #game-theme {
+  width: 100%; padding: 10px; background: #150b07; border: 1px solid #78350f;
+  border-radius: 8px; color: #fef3c7; outline: none; font-size: 14px;
+}
+
+.touch-btn.flash {
+  box-shadow: 0 0 28px rgba(250, 204, 21, 0.85), 0 0 12px rgba(255,255,255,0.5) !important;
+  border-color: #fef3c7 !important;
+  transform: scale(0.88);
+}
+.touch-btn-main.flash {
+  box-shadow: 0 0 32px rgba(239, 68, 68, 0.9), 0 0 14px rgba(255,200,200,0.6) !important;
+}
+.touch-btn-ult.flash {
+  box-shadow: 0 0 32px rgba(250, 204, 21, 0.95) !important;
+}
+/* Di HP pastikan kontrol tidak tertutup */
+@media (max-width: 640px) {
+  #touch-controls { padding: 0 10px 14px; }
+  .touch-btn { width: 60px; height: 60px; }
+  .touch-btn-main { width: 78px; height: 78px; }
+  .controls-hint { bottom: 160px; }
+}
+
+/* Logo di tengah HUD */
+#header-bar {
+  position: absolute;
+  /* pastikan relative untuk absolute child */
+}
+#hud-logo-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 5;
+  max-width: 46%;
+  flex-wrap: nowrap;
+}
+.hud-logo-main {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.55));
+  border-radius: 6px;
+  background: rgba(0,0,0,0.25);
+  padding: 2px;
+}
+.hud-logo-badge {
+  height: 28px;
+  width: auto;
+  max-height: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 4px rgba(0,0,0,0.5));
+  opacity: 0.95;
+  background: rgba(0,0,0,0.2);
+  border-radius: 4px;
+  padding: 1px;
+}
+@media (max-width: 640px) {
+  .hud-logo-main { height: 28px; }
+  .hud-logo-badge { height: 20px; }
+  #hud-logo-center { gap: 3px; max-width: 55%; }
+}
+@media (max-width: 400px) {
+  .hud-logo-badge { height: 16px; }
+  .hud-logo-main { height: 24px; }
+}
+
+.menu-logo {
+  display: block;
+  margin: 0 auto 10px;
+  height: 88px;
+  width: auto;
+  filter: drop-shadow(0 0 12px rgba(220,38,38,0.45));
+  border-radius: 8px;
+}
+.menu-credits {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: #fca5a5;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+.menu-credit-logo {
+  height: 22px;
+  width: auto;
+  opacity: 0.9;
+}
